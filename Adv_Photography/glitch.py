@@ -56,7 +56,11 @@ class image():
             except IndexError:
                 pass
             
-    def glitch(self) -> None:
+    def randomGlitch(self) -> None:
+        if (random.randint(0,1) == 1):
+            self.randomGlitchOne()
+        else:
+            self.randomGlitchTwo()
         
 
 def main():
@@ -79,6 +83,7 @@ def main():
             for t in range(random.randint(1, 200)):
                 i.randomGlitch()
             i.saveImage()
+            del iph
     
     # print glitched photos
     print('Glitched photos:')
