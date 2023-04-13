@@ -1,83 +1,93 @@
-from PIL import Image
 import random
+import os
 
 
-class Glitch_Image():
+class image():
 
-    def __init__(self, filename, extension, dataType):
+    def __init__(self, filename, extension, directory) -> None:
         # '''r - raw, s - size, p - pixels'''
-        theImage = Image.open(str(filename+extension))
+
+        self.homedir = os.getcwd()
+        os.chdir(directory)
+        theImage = open(str(filename+extension), 'rb')
 
         self.name = filename
         self.extension = extension
-        self.raw = list(theImage.tobytes())
-        self.size = theImage.size
-        self.pixels = list(theImage.getdata())
-        self.type = dataType
+        self.raw = list(theImage.read())
+        self.glitchedRaw = self.raw
 
-        self.newData = []
-
-        if dataType == 'r':
-            self.newData = self.raw
-        elif dataType == 'p':
-            self.newData = self.pixels
+        theImage.close()
+        os.chdir(self.homedir)
 
     def __str__(self) -> str:
         return str(self.raw)
+    
+    def saveImage(self) -> None:
+        # create a dirctory
+        # save the image to the directory
 
-    def saveImage(self):
-        if self.type == 'r':
-            glitched = Image.frombytes('RGB', self.size, bytes(self.newData))
-        elif self.type == 'p':
-            glitched = Image.new('RGB', self.size)
-            glitched.putdata(self.newData)
-        glitched.save(str(self.name + '_glitched' + self.extension))
+        try:
+            os.chdir(str("glitched_photos"))
+        except FileNotFoundError:
+            os.mkdir(str("glitched_photos"))
+            os.chdir(str("glitched_photos"))
+        try:
+            os.chdir(str(self.name + '_glitched'))
+        except FileNotFoundError:
+            os.mkdir(str(self.name + '_glitched'))
+            os.chdir(str(self.name + '_glitched'))
+        inDirectories = len(os.listdir())
+        glitched = open(str(self.name + '_glitched_' + str(inDirectories+1) + self.extension), 'wb')
+        glitched.write(bytes(self.glitchedRaw))
+        glitched.close()
+        os.chdir('..')
+        os.chdir('..')
 
-    def pixelShuffle(self):
-        random.shuffle(self.newData)
+    def randomGlitchOne(self) -> None:
+        glitchIndex = random.randint(0, len(self.glitchedRaw))
+        self.glitchedRaw[glitchIndex] = random.randrange(0, 255)
+    
+    def randomGlitchTwo(self) -> None:
+        randomIndex = random.randint(0, len(self.glitchedRaw))
 
-    def editSomeRawPlaces(self):  # does not work
-        for i in range(300):
-            index = random.randint(0, len(self.newData))
-            self.newData[index] = (random.randrange(0, 255))
-            count = 1
-            for t in range(100):
-                try:
-                    self.newData[index + count] = (random.randrange(
-                        0, 255))
-                except IndexError:
-                    pass
-                try:
-                    self.newData[index - count] = (random.randrange(
-                        0, 255))
-                except IndexError:
-                    pass
-                count += 15
+        for i in range(-2, 2, 1):
+            try:
+                self.glitchedRaw[randomIndex+i] = random.randrange(0, 255)
+            except IndexError:
+                pass
+            
+    def glitch(self) -> None:
+        
 
-    def replaceSomePixels(self):
-        for i in range(300):
-            index = random.randint(0, len(self.newData))
-            self.newData[index] = (random.randrange(
-                0, 255), random.randrange(0, 255), random.randrange(0, 255))
-            count = 1
-            for t in range(100):
-                try:
-                    self.newData[index + count] = (random.randrange(
-                        0, 255), random.randrange(0, 255), random.randrange(0, 255))
-                except IndexError:
-                    pass
-                try:
-                    self.newData[index - count] = (random.randrange(
-                        0, 255), random.randrange(0, 255), random.randrange(0, 255))
-                except IndexError:
-                    pass
-                count += 1
+def main():
+    directory = input('Enter the directory of the files you want to glitch: ')
+    extension = input('Enter the extension of the file you want to glitch: ')
+    numberOfPhotos = int(input('How many photos do you want to glitch? '))
 
-filename = input('Enter the name of the file you want to glitch without extension: ')
-extension = input('Enter the extension of the file you want to glitch: ')
-dataType = str(input('Enter the type of data you want to glitch: '))
+    names = []
 
-theImage = Glitch_Image(filename, extension, dataType)
+    for eachFile in os.listdir(directory):
+        if eachFile.endswith(extension):
+            # remove the extension
+            eachFile = eachFile[:-len(extension)]
+            names.append(eachFile)
+            break
+    
+    for eachName in names:
+        for i in range(numberOfPhotos):
+            i = image(eachName, extension, directory)
+            for t in range(random.randint(1, 200)):
+                i.randomGlitch()
+            i.saveImage()
+    
+    # print glitched photos
+    print('Glitched photos:')
+    for eachFile in os.listdir(directory):
+        if eachFile.endswith(extension):
+            print(eachFile)
+    
+main()
+    
 
-theImage.editSomeRawPlaces()
-theImage.saveImage()
+
+        
