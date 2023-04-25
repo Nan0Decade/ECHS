@@ -83,7 +83,7 @@ def main():
             for t in range(random.randint(1, 200)):
                 i.randomGlitch()
             i.saveImage()
-            del iph
+            del i
     
     # print glitched photos
     print('Glitched photos:')
